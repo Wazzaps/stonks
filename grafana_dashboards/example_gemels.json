@@ -1,0 +1,479 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 2,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 9,
+      "panels": [],
+      "title": "לאורך זמן",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "kK86kGy4k"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 65,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 3,
+            "pointSize": 9,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "always",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "suffix:₪"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 31,
+        "w": 12,
+        "x": 0,
+        "y": 1
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "asc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "kK86kGy4k"
+          },
+          "queryText": "WITH my_products AS (SELECT * from stonks_swiftnessproduct WHERE user_id_id = 1)\nSELECT format(\"%sT00:00:00Z\", date_of_validity) as date, product_name as name, total_savings as value\nFROM my_products\nWHERE total_savings > 0\nORDER BY date_of_validity ASC, total_savings ASC;\n",
+          "queryType": "time series",
+          "rawQueryText": "WITH my_products AS (SELECT * from stonks_swiftnessproduct WHERE user_id_id = 1)\nSELECT format(\"%sT00:00:00Z\", date_of_validity) as date, product_name as name, total_savings as value\nFROM my_products\nWHERE total_savings > 0\nORDER BY date_of_validity ASC, total_savings ASC;\n",
+          "refId": "A",
+          "timeColumns": [
+            "date"
+          ]
+        }
+      ],
+      "title": "סיכום קופות",
+      "transformations": [
+        {
+          "id": "labelsToFields",
+          "options": {
+            "valueLabel": "name"
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "kK86kGy4k"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 65,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 3,
+            "pointSize": 8,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "always",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "displayName": "ערך",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "suffix:₪"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "kK86kGy4k"
+          },
+          "queryText": "WITH my_products AS (SELECT * from stonks_swiftnessproduct WHERE user_id_id = 1)\nSELECT format('%sT00:00:00Z', date_of_validity) as date, total_savings as value\nFROM my_products\nWHERE total_savings > 0 AND managing_company = 'הפניקס פנסיה וגמל בע\"מ' AND product_name = 'קופת גמל להשקעה'\nORDER BY date_of_validity ASC;\n",
+          "queryType": "table",
+          "rawQueryText": "WITH my_products AS (SELECT * from stonks_swiftnessproduct WHERE user_id_id = 1)\nSELECT format('%sT00:00:00Z', date_of_validity) as date, total_savings as value\nFROM my_products\nWHERE total_savings > 0 AND managing_company = 'הפניקס פנסיה וגמל בע\"מ' AND product_name = 'קופת גמל להשקעה'\nORDER BY date_of_validity ASC;\n",
+          "refId": "A",
+          "timeColumns": [
+            "date"
+          ]
+        }
+      ],
+      "title": "קופת גמל להשקעה",
+      "transformations": [],
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 32
+      },
+      "id": 11,
+      "panels": [],
+      "title": "הפקדות",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "kK86kGy4k"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto",
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "value_date"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "תאריך ערך"
+              },
+              {
+                "id": "custom.align",
+                "value": "right"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "name"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "שם"
+              },
+              {
+                "id": "custom.align",
+                "value": "right"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "personal_deposits"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "suffix:₪"
+              },
+              {
+                "id": "displayName",
+                "value": "הפקדות עובד"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "job_deposits"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "suffix:₪"
+              },
+              {
+                "id": "displayName",
+                "value": "הפקדות מעסיק"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "job_deposits_for_compensation"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "suffix:₪"
+              },
+              {
+                "id": "displayName",
+                "value": "הפקדות מעסיק לפיצויים"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "שם"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 330
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "הפקדות מעסיק לפיצויים"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 188
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "הפקדות מעסיק"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 133
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "הפקדות עובד"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 119
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 20,
+        "w": 9,
+        "x": 0,
+        "y": 33
+      },
+      "id": 13,
+      "options": {
+        "footer": {
+          "enablePagination": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "9.3.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "kK86kGy4k"
+          },
+          "queryText": "WITH my_deposits AS (SELECT * from stonks_swiftnessdeposit WHERE user_id_id = 1)\nSELECT SUM(job_deposits_for_compensation) AS job_deposits_for_compensation,\n       SUM(job_deposits) AS job_deposits,\n       SUM(personal_deposits) AS personal_deposits,\n       format('%s [%s]', product_type, managing_company) AS name,\n        strftime('%Y-%m-%d', value_date) AS value_date\nFROM my_deposits\nGROUP BY value_date, managing_company, product_type\nORDER BY value_date DESC, managing_company ASC, product_type ASC;",
+          "queryType": "table",
+          "rawQueryText": "WITH my_deposits AS (SELECT * from stonks_swiftnessdeposit WHERE user_id_id = 1)\nSELECT SUM(job_deposits_for_compensation) AS job_deposits_for_compensation,\n       SUM(job_deposits) AS job_deposits,\n       SUM(personal_deposits) AS personal_deposits,\n       format('%s [%s]', product_type, managing_company) AS name,\n        strftime('%Y-%m-%d', value_date) AS value_date\nFROM my_deposits\nGROUP BY value_date, managing_company, product_type\nORDER BY value_date DESC, managing_company ASC, product_type ASC;",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ],
+      "title": "הפקדות",
+      "type": "table"
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 37,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now/y",
+    "to": "now/y"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "גמל",
+  "uid": "oofFYSy4k",
+  "version": 2,
+  "weekStart": ""
+}
