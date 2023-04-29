@@ -1,5 +1,6 @@
 import base64
 import json
+import subprocess
 import requests
 from pathlib import Path
 from google.auth.transport.requests import Request
@@ -13,22 +14,56 @@ SCOPES = ["https://www.googleapis.com/auth/gmail.readonly", "https://www.googlea
 CREDS_DIR = Path("/mnt/hdd/stonks/creds")
 UNPROCESSED_DIR = Path("/mnt/hdd/stonks/unprocessed")
 PROCESSED_DIR = Path("/mnt/hdd/stonks/processed")
+REMOTE_DUMPS_DIR = "myserver:/srv/stonks/dumps"
 
 
 def main():
+    stonks_api_creds = json.load((CREDS_DIR / "stonks_creds.json").open("r"))
+
+    # Fetch new Swiftness zips from email
     try:
+        print("Fetching Swiftness ZIPs from Gmail...")
         fetch_new_zips()
     except Exception as e:
         print(f"An unknown error occurred while fetching zips: {e}")
 
+    # Fetch the jsons created by stonks_banks on my server
     try:
-        stonks_api_creds = json.load((CREDS_DIR / "stonks_creds.json").open("r"))
+        print("Fetching Bank JSONs from the server...")
+        subprocess.check_call(
+            [
+                "rsync",
+                "--verbose",
+                "--progress",
+                "--remove-source-files",
+                REMOTE_DUMPS_DIR + "/*.json",
+                str(UNPROCESSED_DIR),
+            ]
+        )
+    except Exception as e:
+        print(f"An unknown error occurred while fetching bank dumps: {e}")
+
+    # Process the files
+    try:
         PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
         for f in UNPROCESSED_DIR.iterdir():
-            print(f"Processing {f.name}")
-            if f.is_file() and f.suffix == ".zip":
+            if f.is_file() and f.suffix == ".zip" and f.name.startswith("SwiftNess_"):
+                print(f"Processing {f.name}")
                 res = requests.put(
                     f"http://localhost:8000/api/v1/parse_swiftness_zip?zip_pass={stonks_api_creds['zip_pass']}",
+                    data=f.open("rb"),
+                    auth=(stonks_api_creds["username"], stonks_api_creds["password"]),
+                )
+                if res.status_code in (200, 201):
+                    f.rename(PROCESSED_DIR / f.name)
+                else:
+                    print(f"Failed to process {f.name}: {res.status_code}")
+                    print(res.content.decode("utf-8", errors="ignore"))
+
+            if f.is_file() and f.suffix == ".json" and f.name.startswith("BankDump_"):
+                print(f"Processing {f.name}")
+                res = requests.put(
+                    f"http://localhost:8000/api/v1/parse_bank_dumper_json",
                     data=f.open("rb"),
                     auth=(stonks_api_creds["username"], stonks_api_creds["password"]),
                 )

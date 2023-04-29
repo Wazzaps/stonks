@@ -220,3 +220,49 @@ class SwiftnessInsurance(models.Model):
                 name="swiftness_insurance_primary_key",
             )
         ]
+
+
+class BankState(models.Model):
+    user_id = models.ForeignKey("auth.User", on_delete=models.CASCADE)
+    account_num = models.TextField()
+    time = models.DateTimeField()
+    balance = models.FloatField()
+
+    def __str__(self):
+        return f"U=({self.user_id}) ACC#{self.account_num} @{self.time} ={self.balance}"
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    "time",
+                    "account_num",
+                    "user_id",
+                ],
+                name="bank_state_primary_key",
+            )
+        ]
+
+
+class BankTransaction(models.Model):
+    user_id = models.ForeignKey("auth.User", on_delete=models.CASCADE)
+    account_num = models.TextField()
+    txn_id = models.TextField()
+    time = models.DateTimeField()
+    amount = models.FloatField()
+    description = models.TextField()
+
+    def __str__(self):
+        return f"U=({self.user_id}) ACC#{self.account_num} TXN#{self.txn_id} @{self.time} ={self.amount} : {self.description}"
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    "txn_id",
+                    "account_num",
+                    "user_id",
+                ],
+                name="bank_transaction_primary_key",
+            )
+        ]

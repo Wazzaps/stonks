@@ -22,6 +22,9 @@ urlpatterns = [
     path("api/v1/swiftness_products", stonks.views.SwiftnessProductList.as_view({"get": "list", "post": "create"})),
     path("api/v1/swiftness_deposits", stonks.views.SwiftnessDepositList.as_view({"get": "list", "post": "create"})),
     path("api/v1/swiftness_insurances", stonks.views.SwiftnessInsuranceList.as_view({"get": "list", "post": "create"})),
+    path("api/v1/bank_states", stonks.views.BankStateList.as_view({"get": "list", "post": "create"})),
+    path("api/v1/bank_transactions", stonks.views.BankTransactionList.as_view({"get": "list", "post": "create"})),
     path("api/v1/parse_swiftness_zip", stonks.views.ParseSwiftnessZip.as_view()),
+    path("api/v1/parse_bank_dumper_json", stonks.views.ParseBankDumperJson.as_view()),
     path("", include("rest_framework.urls")),  # Login and logout views
 ]

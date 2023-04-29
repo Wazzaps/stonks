@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from stonks.models import SwiftnessProduct, SwiftnessDeposit, SwiftnessInsurance
+from stonks.models import SwiftnessProduct, SwiftnessDeposit, SwiftnessInsurance, BankState, BankTransaction
 
 
 class SwiftnessProductSerializer(serializers.ModelSerializer):
@@ -17,4 +17,16 @@ class SwiftnessDepositSerializer(serializers.ModelSerializer):
 class SwiftnessInsuranceSerializer(serializers.ModelSerializer):
     class Meta:
         model = SwiftnessInsurance
+        fields = "__all__"
+
+
+class BankStateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BankState
+        fields = "__all__"
+
+
+class BankTransactionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BankTransaction
         fields = "__all__"

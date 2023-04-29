@@ -1,0 +1,11 @@
+[Unit]
+Description=Queries my bank info periodically
+Requires=bank-dumper.service
+
+[Timer]
+Unit=bank-dumper.service
+# Once every 6 hours, at 16 minutes past the hour
+OnCalendar=00/6:16
+
+[Install]
+WantedBy=timers.target

@@ -1,3 +1,6 @@
+import datetime
+import json
+from pytz import timezone
 from django.db import IntegrityError
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -5,8 +8,14 @@ from rest_framework.parsers import BaseParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, viewsets, permissions
-from stonks.models import SwiftnessProduct, SwiftnessDeposit, SwiftnessInsurance
-from stonks.serializers import SwiftnessProductSerializer, SwiftnessDepositSerializer, SwiftnessInsuranceSerializer
+from stonks.models import SwiftnessProduct, SwiftnessDeposit, SwiftnessInsurance, BankState, BankTransaction
+from stonks.serializers import (
+    SwiftnessProductSerializer,
+    SwiftnessDepositSerializer,
+    SwiftnessInsuranceSerializer,
+    BankStateSerializer,
+    BankTransactionSerializer,
+)
 from stonks.swiftness_parsing.extractor import extract_swiftness_zip
 
 
@@ -58,6 +67,31 @@ class SwiftnessInsuranceList(viewsets.ModelViewSet):
         )
 
 
+class BankStateList(viewsets.ModelViewSet):
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    serializer_class = BankStateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return BankState.objects.filter(user_id=self.request.user).order_by(
+            "date",
+            "account_num",
+        )
+
+
+class BankTransactionList(viewsets.ModelViewSet):
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    serializer_class = BankTransactionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return BankTransaction.objects.filter(user_id=self.request.user).order_by(
+            "date",
+            "account_num",
+            "txn_id",
+        )
+
+
 class ParseSwiftnessZip(APIView):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
@@ -86,3 +120,71 @@ class ParseSwiftnessZip(APIView):
                     return Response(serializer.errors, status=400)
 
         return Response({"status": "ok"}, status=201)
+
+
+class ParseBankDumperJson(APIView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+    parser_classes = [BinaryParser]
+
+    # noinspection PyMethodMayBeStatic
+    def put(self, request):
+        dump = json.loads(request.read())
+        assert dump["success"] is True, "israeli-bank-scrapers failed"
+
+        israel_tz = timezone("Asia/Jerusalem")
+        query_time = israel_tz.fromutc(datetime.datetime.fromisoformat(dump["queryTime"].rstrip("Z")))
+
+        for account in dump["accounts"]:
+            account_num = account["accountNumber"]
+            balance = account["balance"]
+            account_state = BankState(
+                user_id=request.user,
+                account_num=account_num,
+                time=query_time,
+                balance=balance,
+            )
+            try:
+                account_state.save()
+            except IntegrityError:
+                # Entry already exists, ignore
+                pass
+
+            for transaction in account["txns"]:
+                if transaction["type"] != "normal":
+                    print(f"Skipping transaction of type '{transaction['type']}'")
+                    continue
+                if transaction["status"] != "completed":
+                    print(f"Skipping transaction of status '{transaction['status']}'")
+                    continue
+                if transaction["chargedAmount"] != transaction["originalAmount"]:
+                    print(
+                        f"#{transaction['identifier']}: The charged amount ({transaction['chargedAmount']}) "
+                        f"is different from the original amount ({transaction['originalAmount']})"
+                    )
+                    continue
+                if transaction["originalCurrency"] != "ILS":
+                    print(f"#{transaction['identifier']}: The original currency is {transaction['originalCurrency']}")
+                    continue
+
+                txn = BankTransaction(
+                    user_id=request.user,
+                    account_num=account_num,
+                    txn_id=transaction["identifier"],
+                    time=round_date(datetime.datetime.fromisoformat(transaction["date"].rstrip("Z"))).astimezone(
+                        israel_tz
+                    ),
+                    amount=transaction["chargedAmount"],
+                    description=transaction["description"],
+                )
+                try:
+                    txn.save()
+                except IntegrityError:
+                    # Entry already exists, ignore
+                    pass
+
+        return Response({"status": "ok"}, status=201)
+
+
+def round_date(date) -> datetime.datetime:
+    return (date + datetime.timedelta(hours=12)).replace(hour=0, minute=0, second=0, microsecond=0)

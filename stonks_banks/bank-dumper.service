@@ -1,0 +1,10 @@
+[Unit]
+Description=Queries my bank info
+Wants=bank-dumper.timer
+
+[Service]
+Type=oneshot
+ExecStart=/srv/stonks/get_bank_state.sh
+
+[Install]
+WantedBy=multi-user.target
